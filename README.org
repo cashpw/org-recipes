@@ -39,7 +39,7 @@ This package defines the following properties:
 | =RECIPE_SERVINGS=     | Number of servings the recipe produces.   | "5"      |
 | =RECIPE_YIELD=        | Amount of food the recipe produces        | "7 cups" |
 
-  You can access them with the getters (for example: =org-recipe-get-servings=). The time-based properties also have a =*-get-duration= variant that formats with =org-duration-from-minutes=.
+  You can access them with the getters (for example: =org-recipes-get-servings=). The time-based properties also have a =*-get-duration= variant that formats with =org-duration-from-minutes=.
 
 * Use cases
 
@@ -57,11 +57,11 @@ You can export your recipe meta-data to =org-hugo=. Note this code assumes you'r
                      ":${label} \"${value}\"")))
                 (cl-remove-if (lambda (item)
                                 (not (cdr item)))
-                              `(("prep_time" . ,(org-recipe-get-prep-duration (point-min)))
-                                ("cook_time" . ,(org-recipe-get-cook-duration (point-min)))
-                                ("total_time" . ,(org-recipe-get-total-duration (point-min)))
-                                ("servings" . ,(org-recipe-get-servings (point-min)))
-                                ("yield" . ,(org-recipe-get-yield (point-min)))
+                              `(("prep_time" . ,(org-recipes-get-prep-duration (point-min)))
+                                ("cook_time" . ,(org-recipes-get-cook-duration (point-min)))
+                                ("total_time" . ,(org-recipes-get-total-duration (point-min)))
+                                ("servings" . ,(org-recipes-get-servings (point-min)))
+                                ("yield" . ,(org-recipes-get-yield (point-min)))
                                 ("slug" . ,(save-excursion
                                              (org-entry-get (point-min) "ID"))))))
                " "))

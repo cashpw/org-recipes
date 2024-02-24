@@ -25,12 +25,12 @@
   :tag "Recipes in org-roam."
   :link '(url-link :tag "Github" "https://github.com/cashpw/org-recipe"))
 
-(defcustom org-recipe--property-prefix "RECIPE"
+(defcustom org-recipes--property-prefix "RECIPE"
   "Prefix for all `org-mode' headline properties used by org-recipe."
   :type 'string
   :group 'org-recipe)
 
-(defun org-recipe--get-prop (property pom &optional default)
+(defun org-recipes--get-prop (property pom &optional default)
   "Return value for PROPERTY at POM or (optional) DEFAULT if value is nil."
   (let ((property-value (org-entry-get pom property)))
     (if default
@@ -38,98 +38,98 @@
             default)
       property-value)))
 
-(defun org-recipe--get-int-property (property &optional point-or-marker)
+(defun org-recipes--get-int-property (property &optional point-or-marker)
   "Return the integer value of PROPERTY (at POINT-OR-MARKER).
 
 Return nil if the property doesn't exist."
   (let* ((point-or-marker (or point-or-marker
                               (point)))
-         (value (org-recipe--get-prop property
-                                      point-or-marker)))
+         (value (org-recipes--get-prop property
+                                       point-or-marker)))
     (if value
         (string-to-number value)
       nil)))
 
-(defun org-recipe--format-duration (minutes)
+(defun org-recipes--format-duration (minutes)
   "Return formatted time string of duration MINUTES."
   (org-duration-from-minutes minutes))
 
 ;; Preparation time
 
-(defun org-recipe--prop-prep-minutes ()
+(defun org-recipes--prop-prep-minutes ()
   "Property for preparation minutes."
-  (concat org-recipe--property-prefix "_PREP_MINUTES"))
+  (concat org-recipes--property-prefix "_PREP_MINUTES"))
 
-(defun org-recipe-get-prep-minutes (&optional point-or-marker)
+(defun org-recipes-get-prep-minutes (&optional point-or-marker)
   "Return prep time in minutes at POINT-OR-MARKER."
-  (org-recipe--get-int-property (org-recipe--prop-prep-minutes)
-                                point-or-marker))
+  (org-recipes--get-int-property (org-recipes--prop-prep-minutes)
+                                 point-or-marker))
 
-(defun org-recipe-get-prep-duration (&optional point-or-marker)
+(defun org-recipes-get-prep-duration (&optional point-or-marker)
   "Return formatted preparation duration at POINT-OR-MARKER."
-  (let ((prep-minutes (org-recipe-get-prep-minutes point-or-marker)))
+  (let ((prep-minutes (org-recipes-get-prep-minutes point-or-marker)))
     (if (not prep-minutes)
         nil
-      (org-recipe--format-duration prep-minutes))))
+      (org-recipes--format-duration prep-minutes))))
 
 ;; Cook time
 
-(defun org-recipe--prop-cook-minutes ()
+(defun org-recipes--prop-cook-minutes ()
   "Property for cooking minutes."
-  (concat org-recipe--property-prefix "_COOK_MINUTES"))
+  (concat org-recipes--property-prefix "_COOK_MINUTES"))
 
-(defun org-recipe-get-cook-minutes (&optional point-or-marker)
+(defun org-recipes-get-cook-minutes (&optional point-or-marker)
   "Return cook time in minutes at POINT-OR-MARKER."
-  (org-recipe--get-int-property (org-recipe--prop-cook-minutes)
-                                point-or-marker))
+  (org-recipes--get-int-property (org-recipes--prop-cook-minutes)
+                                 point-or-marker))
 
-(defun org-recipe-get-cook-duration (&optional point-or-marker)
+(defun org-recipes-get-cook-duration (&optional point-or-marker)
   "Return formatted cooking duration at POINT-OR-MARKER."
-  (let ((cook-minutes (org-recipe-get-cook-minutes point-or-marker)))
+  (let ((cook-minutes (org-recipes-get-cook-minutes point-or-marker)))
     (if (not cook-minutes)
         nil
-      (org-recipe--format-duration cook-minutes))))
+      (org-recipes--format-duration cook-minutes))))
 
 ;; Ready-in time
 
-(defun org-recipe-get-total-duration (&optional point-or-marker)
+(defun org-recipes-get-total-duration (&optional point-or-marker)
   "Return formatted total duration at POINT-OR-MARKER."
-  (let* ((cook-minutes (org-recipe-get-cook-minutes point-or-marker))
-         (prep-minutes (org-recipe-get-prep-minutes point-or-marker))
+  (let* ((cook-minutes (org-recipes-get-cook-minutes point-or-marker))
+         (prep-minutes (org-recipes-get-prep-minutes point-or-marker))
          (total-minutes (apply #'+
                                (remove nil
                                        `(,cook-minutes
                                          ,prep-minutes)))))
     (if (= 0 total-minutes)
         nil
-      (org-recipe--format-duration total-minutes))))
+      (org-recipes--format-duration total-minutes))))
 
 ;; Servings
 
-(defun org-recipe--prop-servings ()
+(defun org-recipes--prop-servings ()
   "Property for servings."
-  (concat org-recipe--property-prefix "_SERVINGS"))
+  (concat org-recipes--property-prefix "_SERVINGS"))
 
-(defun org-recipe-get-servings (&optional point-or-marker)
+(defun org-recipes-get-servings (&optional point-or-marker)
   "Return servings at POINT-OR-MARKER (e.g. \"8\")."
-  (org-recipe--get-int-property (org-recipe--prop-servings)
-                                point-or-marker))
+  (org-recipes--get-int-property (org-recipes--prop-servings)
+                                 point-or-marker))
 
 ;; Yield
 
-(defun org-recipe--prop-yield ()
+(defun org-recipes--prop-yield ()
   "Property for yield."
-  (concat org-recipe--property-prefix "_YIELD"))
+  (concat org-recipes--property-prefix "_YIELD"))
 
-(defun org-recipe-get-yield (&optional point-or-marker)
+(defun org-recipes-get-yield (&optional point-or-marker)
   "Return yield at POINT-OR-MARKER (e.g. \"7 liters\")."
-  (org-recipe--get-prop (org-recipe--prop-yield)
-                        point-or-marker))
+  (org-recipes--get-prop (org-recipes--prop-yield)
+                         point-or-marker))
 
-(defcustom org-recipe--properties `(,(org-recipe--prop-prep-minutes)
-                                    ,(org-recipe--prop-cook-minutes)
-                                    ,(org-recipe--prop-servings)
-                                    ,(org-recipe--prop-yield))
+(defcustom org-recipes--properties `(,(org-recipes--prop-prep-minutes)
+                                     ,(org-recipes--prop-cook-minutes)
+                                     ,(org-recipes--prop-servings)
+                                     ,(org-recipes--prop-yield))
   "`org-mode' properties used by `org-recipe'."
   :type '(repeat string)
   :group 'org-recipe)
