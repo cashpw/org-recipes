@@ -1,3 +1,82 @@
-#+title: org-hugo recipes
+#+title: org-recipes
 
-A small package for passing recipe information up into org-hugo.
+Recipe meta-data properties and getters.
+
+* Install
+
+** Using =straight.el=
+
+#+begin_src emacs-lisp
+(use-package org-recipes
+  :straight (:host github
+             :repo "cashpw/org-recipes"))
+#+end_src
+
+** Using Doom Emacs
+
+In =packages.el=:
+
+#+begin_src emacs-lisp
+(package! org-recipes
+  :recipe (:host github
+           :repo "cashpw/org-recipes"))
+#+end_src
+
+In =config.el=:
+
+#+begin_src emacs-lisp
+(use-package! org-recipes)
+#+end_src
+
+* Use
+
+This package defines the following properties:
+
+| Property              | Description                               | Example  |
+|-----------------------+-------------------------------------------+----------|
+| =RECIPE_COOK_MINUTES= | Number of minutes to cook the recipe.     | "10"     |
+| =RECIPE_PREP_MINUTES= | Number of minutes to prepare ingredients. | "20"     |
+| =RECIPE_SERVINGS=     | Number of servings the recipe produces.   | "5"      |
+| =RECIPE_YIELD=        | Amount of food the recipe produces        | "7 cups" |
+
+  You can access them with the getters (for example: =org-recipe-get-servings=). The time-based properties also have a =*-get-duration= variant that formats with =org-duration-from-minutes=.
+
+* Use cases
+
+** =org-hugo= custom front matter
+
+You can export your recipe meta-data to =org-hugo=. Note this code assumes you're using the [[https://ox-hugo.scripter.co/#screenshot-one-post-per-file]["one post per org file"]] approach.
+
+#+begin_src emacs-lisp
+(defun me/org-hugo--get-custom-front-matter ()
+  "Return custom front-matter as a string."
+  (string-join (mapcar
+                (lambda (item)
+                  (destructuring-bind (label . value) item
+                    (s-lex-format
+                     ":${label} \"${value}\"")))
+                (cl-remove-if (lambda (item)
+                                (not (cdr item)))
+                              `(("prep_time" . ,(org-recipe-get-prep-duration (point-min)))
+                                ("cook_time" . ,(org-recipe-get-cook-duration (point-min)))
+                                ("total_time" . ,(org-recipe-get-total-duration (point-min)))
+                                ("servings" . ,(org-recipe-get-servings (point-min)))
+                                ("yield" . ,(org-recipe-get-yield (point-min)))
+                                ("slug" . ,(save-excursion
+                                             (org-entry-get (point-min) "ID"))))))
+               " "))
+
+(defun me/org-hugo--set-custom-front-matter ()
+  "Set custom hugo front-matter."
+  (org-roam-set-keyword "HUGO_CUSTOM_FRONT_MATTER"
+                        (me/org-hugo--get-custom-front-matter)))
+#+end_src
+
+Then, in the =.dir-locals= file in the relevant directory:
+
+#+begin_src emacs-lisp
+(add-hook 'before-save-hook
+          #'me/org-hugo--set-custom-front-matter
+          nil
+          t)
+#+end_src
