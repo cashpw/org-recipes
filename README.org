@@ -28,7 +28,7 @@ In =config.el=:
 (use-package! org-recipes)
 #+end_src
 
-* Use
+* Properties
 
 This package defines the following properties:
 
