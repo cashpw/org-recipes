@@ -1,0 +1,3 @@
+#+title: org-hugo recipes
+
+A small package for passing recipe information up into org-hugo.
